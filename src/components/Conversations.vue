@@ -5,7 +5,7 @@
         <md-button class="md-icon-button" @click="refresh">
             <md-icon>refresh</md-icon>
         </md-button>
-        <md-button class="md-icon-button">
+        <md-button class="md-icon-button" to="/profile">
             <md-icon>account_circle</md-icon>
         </md-button>
         <md-button class="md-icon-button" @click="logout">
@@ -86,6 +86,10 @@ export default {
                 }
             });
         },
+	    open_profile () {
+			console.log("Opening Profile()");
+			var self = this;
+		},
         logout () {
             console.log("Conversations File: Logout()");
             console.log("User = " + JSON.stringify(this.$user));
