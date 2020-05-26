@@ -26,6 +26,7 @@
             </md-avatar>
 
             <div class="md-list-item-text" @click="open(conv.id)">
+            <!--<div class="md-list-item-text" :to="'/conversation/' + conv.id">-->
                 <span>{{ conv.name }}</span>
                 <p v-if="conv.messages[conv.messages.length - 1].content.length > 35">
                     {{ conv.messages[conv.messages.length - 1].content.substring(0, 35) + '...'}}
@@ -103,6 +104,7 @@ export default {
         },
         open (id) {
             console.log("Conversations File: Open(" + id + ")");
+            this.$router.push({path: '/conversation/' + id });
         },
         edit (id) {
             console.log("Conversations File: Edit(" + id + ")");
