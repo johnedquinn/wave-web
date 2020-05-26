@@ -30,7 +30,8 @@ export default new Router({
     {
       path: '/conversation/:id',
       name: 'Conversation_id',
-      component: Conversation
+      component: Conversation,
+      props: true
     },
     {
       path: '/conversation/:id/messages',
