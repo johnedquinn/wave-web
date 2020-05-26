@@ -4,21 +4,38 @@
         <span class="md-title">Conversation</span>
       </md-app-toolbar>
       <md-app-content>
-        <h1>Hello, World!</h1>
+        <h1>Conversation #{{ id }}</h1>
         <md-button class="md-raised" @click="login">Login</md-button>
-        <p>{{ msg }}</p>
       </md-app-content>
     </md-app>
 </template>
 
 <script>
+import Vue from 'vue';
 export default {
   name: 'Conversation',
+  props: ["id"],
   data: function () {
-    return {
-        msg: ''
+    return { 
+      conversation: {}
     }
   },
+  mounted() {
+ if (this.id) {
+ this.$db.listConversations(
+ this.$user.token,
+ { id: this.id },
+ (err, convs) => {
+ if (err) alert(err.message);
+ else {
+ for (var id in convs[0]) {
+ Vue.set(this.conversation, id, convs[0][id]);
+ }
+ }
+ }
+ );
+ }
+ },
   methods: {
     login() {
       this.$db.login('john', 'john', (err, token, user) => {
