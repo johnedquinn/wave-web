@@ -36,12 +36,14 @@ export default new Router({
     {
       path: '/conversation/:id/messages',
       name: 'Messages',
-      component: Messages
+      component: Messages,
+      props: true
     },
     {
       path: '/conversation/:id/members',
       name: 'Members',
-      component: Members
+      component: Members,
+      props: true
     },
     {
       path: '/profile',
