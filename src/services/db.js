@@ -30,6 +30,14 @@ var users = {
         surname: 'Smith',
         password: 'max',
         img: ''
+    },
+    '3': {
+        id: '3',
+        email: 'jake',
+        name: 'Jake',
+        surname: 'Smith',
+        password: 'jake',
+        img: ''
     }
 };
 
@@ -38,10 +46,11 @@ var conversations= {
         id: '1',
         name: 'Conv1',
         img: '',
-        members: ['1', '2'],
+        members: ['1', '3', '2'],
         messages: [
-            { id: '1', ts: Date.now(), author: '1', content: 'Hi.' },
-            { id: '2', ts: Date.now(), author: '2', content: 'Hi there. I was hoping you could help me with something. It wont.' }
+            { id: '1', ts: Date.now(), author: '3', content: 'Hi.' },
+            { id: '2', ts: Date.now(), author: '2', content: 'Hi there. I was hoping you could help me with something. It wont.' },
+            { id: '3', ts: Date.now(), author: '1', content: 'Got it.' }
         ]
     },
     '2': {
@@ -288,7 +297,7 @@ function updateConversation (token, conv, cb) {
 
     // Check User is Member in Conversation
     var callerInConv = false;
-    for (var member in conversations[convId][members])
+    for (var member in conversations[convId]['members'])
         if (userId == member) callerInConv = true;
     if (!callerInConv) {
         if (cb) cb(new Error('Caller Not in Conversation'));
