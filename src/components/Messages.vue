@@ -90,7 +90,7 @@ export default {
       var self = this;
       this.$db.listConversations(
         this.$user.token,
-        { id: self.id },
+        { id: self.token },
         (err, convs) => {
           if (err) alert(err.message);
           else {
