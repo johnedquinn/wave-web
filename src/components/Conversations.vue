@@ -18,15 +18,16 @@
         <div :key="conv.id" v-for="conv in conversations">
         <md-divider class="md-inset" v-if="conv != conversations[0]"></md-divider>
         <md-list-item>
-            <md-avatar class="md-avatar-icon" v-if="conv.img == ''">
-                <md-icon>group</md-icon>
+
+            <!-- ICON -->
+            <md-avatar v-if="conv.img && conv.img != ''" class="md-avatar-icon">
+              <img :src="conv.img" />
             </md-avatar>
-            <md-avatar v-else>
-                <img src="" alt="Conversation Image">
+            <md-avatar v-else class="md-large">
+              <md-icon>group</md-icon>
             </md-avatar>
 
             <div class="md-list-item-text" @click="open(conv.id)">
-            <!--<div class="md-list-item-text" :to="'/conversation/' + conv.id">-->
                 <span>{{ conv.name }}</span>
                 <p v-if="conv.messages[conv.messages.length - 1].content.length > 35">
                     {{ conv.messages[conv.messages.length - 1].content.substring(0, 35) + '...'}}
@@ -50,10 +51,6 @@
         </md-menu-item>
       </md-menu-content>
     </md-menu>
-
-            <!--<md-button class="md-icon-button md-list-action">
-                <md-icon class="md-primary" style="color: black">more_vert</md-icon>
-            </md-button>-->
         </md-list-item>
         </div>
       </md-list>
@@ -94,9 +91,7 @@ export default {
         logout () {
             console.log("Conversations File: Logout()");
             console.log("User = " + JSON.stringify(this.$user));
-            //Vue.set(self.$user, 'token', null);
             Vue.delete(this.$user, 'token');
-            //this.$user = {};
             console.log("User = " + JSON.stringify(this.$user));
         },
         toggle () {
@@ -104,10 +99,11 @@ export default {
         },
         open (id) {
             console.log("Conversations File: Open(" + id + ")");
-            this.$router.push({path: '/conversation/' + id });
+            this.$router.push({path: '/conversation/' + id + '/messages'});
         },
         edit (id) {
             console.log("Conversations File: Edit(" + id + ")");
+            this.$router.push({path: '/conversation/' + id });
         },
         leave (id) {
             console.log("Conversations File: Leave(" + id + ")");
