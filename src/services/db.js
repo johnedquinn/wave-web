@@ -3,17 +3,6 @@
 /// @desc:   NA
 /// @notes:  NA
 
-/*
-Questions for Prof:
-- When 'conv' is passed to addConv and updateConv, are messages part of the object?
-- For the 'conv' functions, what is the token? How do we identify which conversation to update?
-    - Do I check if the user is a member of the conversation before allowing the update?
-- Can I update some pieces of a user/conversation at a time?
-- In addUser, why use 'cb' for some errors but then throw new Errors other times?
-- Should UserIDs really be Date.now()? I've done it for convs and msgs
-- Should messages be an Array or a Dictionary?
-*/
-
 var users = {
     '1': {
         id: '1',
@@ -68,7 +57,15 @@ var conversations= {
         members: ['1', '2'],
         messages: [
             { id: '1', ts: Date.now(), author: '1', content: 'Hi 1' },
-            { id: '2', ts: Date.now(), author: '2', content: 'Hi 2' }
+            { id: '2', ts: Date.now(), author: '2', content: 'Hi 2' },
+            { id: '3', ts: Date.now(), author: '1', content: 'Hi 3' },
+            { id: '4', ts: Date.now(), author: '2', content: 'Hi 4' },
+            { id: '5', ts: Date.now(), author: '1', content: 'Hi 5' },
+            { id: '6', ts: Date.now(), author: '2', content: 'Hi 6' },
+            { id: '7', ts: Date.now(), author: '1', content: 'Hi 7' },
+            { id: '8', ts: Date.now(), author: '2', content: 'Hi 8' },
+            { id: '9', ts: Date.now(), author: '1', content: 'Hi 9' },
+            { id: '10', ts: Date.now(), author: '2', content: 'Hi 10' }
         ]
     }
 };
