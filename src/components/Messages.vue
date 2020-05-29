@@ -59,7 +59,7 @@
             </div>
 
             <md-menu md-size="medium" md-direction="bottom-end">
-              <md-button v-if="token == message.author" class="md-icon-button">
+              <md-button v-if="token == message.author" class="md-icon-button" @click="deleteMessage(message.id)">
                 <md-icon>delete</md-icon>
               </md-button>
             </md-menu>
@@ -90,12 +90,17 @@ export default {
       var self = this;
       this.$db.listConversations(
         this.$user.token,
-        { id: self.token },
+        { },
         (err, convs) => {
           if (err) alert(err.message);
           else {
-            for (var id in convs[0]) {
-              Vue.set(self.conversation, id, convs[0][id]);
+            console.log("Convs: " + JSON.stringify(convs));
+            for (var conv in convs) {
+              console.log("conv:" + conv + "; id: " + convs[conv].id);
+              if (convs[conv].id == self.id)
+                for (var id in convs[conv]) {
+                Vue.set(self.conversation, id, convs[conv][id]);
+                }
             }
           }
         }
@@ -121,6 +126,12 @@ export default {
 
     edit_members() {
       this.$router.push({ path: "/conversation/" + this.id + "/members" });
+    },
+
+    deleteMessage (msgId) {
+      this.$db.removeMessage(this.$user.token, this.id, msgId, (err) => {
+        if (err) console.log(err.message);
+      });
     }
   }
 };
