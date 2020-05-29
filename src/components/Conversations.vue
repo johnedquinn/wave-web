@@ -118,6 +118,10 @@ export default {
         },
         leave (id) {
             console.log("Conversations File: Leave(" + id + ")");
+            this.$db.leaveConversation(this.$user.token, id, (err) => {
+                if (err) console.log(err.message);
+                else this.refresh();
+            });
         },
         createConv () {
             var self = this;

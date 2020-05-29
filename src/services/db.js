@@ -471,7 +471,7 @@ function leaveConversation (token, convId, cb) {
 
     // Check Calling User is Member
     var userInMembers = false;
-    for (id in conversations[convId].members) {
+    for (var id in conversations[convId].members) {
         if (id == token) userInMembers = true;
     }
     if (!userInMembers) {
@@ -480,7 +480,7 @@ function leaveConversation (token, convId, cb) {
     }
 
     // Remove User from Members Array
-    conversations[convId].members.splice(conversation[convId].members.indexOf(userId));
+    conversations[convId].members.splice(conversations[convId].members.indexOf(userId));
     if (cb) cb(null);
 }
 
