@@ -38,6 +38,14 @@ var users = {
         surname: 'Smith',
         password: 'jake',
         img: ''
+    },
+    '4': {
+        id: '4',
+        email: 'joe',
+        name: 'Joe',
+        surname: 'Smith',
+        password: 'joe',
+        img: ''
     }
 };
 
@@ -407,7 +415,7 @@ function joinConversation (token, convId, usrId, cb) {
     // Check Calling User is Member and Joining Member is not
     var calledUserInMembers = false;
     var joinedUserInMembers = false;
-    for (id in conversations[convId].members) {
+    for (var id in conversations[convId].members) {
         if (id == token) calledUserInMembers = true;
         if (id == usrId) joinedUserInMembers = true;
     }
