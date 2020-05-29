@@ -23,10 +23,6 @@
     <md-app-content>
       <md-list class="md-double-line md-dense">
         <div :key="member.id" v-for="member in members">
-          <!--<md-divider
-            class="md-inset"
-            v-if="message != conversation['messages'][0]"
-          ></md-divider>-->
           <md-list-item>
             <!-- ICON -->
             <md-avatar
@@ -89,12 +85,16 @@ export default {
       var self = this;
       this.$db.listConversations(
         this.$user.token,
-        { id: self.token },
+        { },
         (err, convs) => {
           if (err) alert(err.message);
           else {
-            for (var id in convs[0]) {
-              Vue.set(self.conversation, id, convs[0][id]);
+            for (var conv in convs) {
+              console.log("conv:" + conv + "; id: " + convs[conv].id);
+              if (convs[conv].id == self.id)
+                for (var id in convs[conv]) {
+                Vue.set(self.conversation, id, convs[conv][id]);
+                }
             }
           }
         }
@@ -128,7 +128,6 @@ export default {
         (err, convs) => {
           if (err) alert("Error: " + err.message);
           else {
-            //convs.forEach(conv => { self.conversations.push(conv); });
             this.refresh();
           }
         }
