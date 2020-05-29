@@ -1,15 +1,6 @@
 
 <template>
     <md-app>
-      <!--<md-app-toolbar class="md-primary">
-        <span class="md-title">My Messages</span>
-      </md-app-toolbar>
-      <md-app-content>
-        <h1>Hello, World!</h1>
-        <md-button class="md-raised" @click="login">Login</md-button>
-        <p>{{ msg }}</p>
-      </md-app-content>-->
-      <!--<div class="screen">-->
       
       <md-app-content v-if="mode == 'login'">
       <form class="md-layout md-alignment-center-center">
@@ -104,40 +95,6 @@
     </md-app>
 </template>
 
-<!--
-<template>
- <md-content v-if="mode == 'login'">
-
- <!-- formulario login --
- <div class="form">
- <md-field>
- <label>E-mail</label>
- <md-input v-model="user.email" autofocus></md-input>
- </md-field>
- <md-field md-has-password>
- <label>Password</label>
- <md-input v-model="user.password" type="password"></md-input>
- </md-field>
- </div>
-
- <md-button class="md-primary" @click="mode = 'register'">Register</md-button>
- <md-button class="md-raised md-primary" @click="enter">Enter</md-button>
- </md-content>
- <md-content v-else>
-
- <!-- formulario register --
- <div class="form">
- <md-field>
- <label>Name</label>
- <md-input v-model="user.name"></md-input>
- </md-field>
-
- <md-button class="md-raised md-primary" @click="register">Accept</md-button>
- <md-button class="md-raised md-primary" @click="cancel">Cancel</md-button>
- </div>
- </md-content>
- </template>
--->
 <script>
 import Vue from 'vue';
 export default {
