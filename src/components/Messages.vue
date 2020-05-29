@@ -1,5 +1,6 @@
 <template>
-  <md-app style="height: 100vh;">
+  <div>
+  <md-app style="height: 87vh;">
 
     <!-- TOOLBAR -->
     <md-app-toolbar class="md-primary">
@@ -16,7 +17,7 @@
         <md-icon>perm_identity</md-icon>
       </md-avatar>
       <span class="md-title">{{ conversation.name }}</span>
-      <md-button class="md-icon-button" @click="move_down">
+      <md-button class="md-icon-button" @click="scrollToBottom">
         <md-icon>arrow_downward</md-icon>
       </md-button>
       <md-button class="md-icon-button" @click="refresh">
@@ -28,7 +29,7 @@
     </md-app-toolbar>
 
     <md-app-content>
-      <md-list class="md-double-line md-dense">
+      <md-list class="md-double-line md-dense msgList">
         <div :key="message.id" v-for="message in conversation['messages']">
           <md-divider
             class="md-inset"
@@ -67,8 +68,24 @@
           </md-list-item>
         </div>
       </md-list>
+
+
+
     </md-app-content>
+
+
+
   </md-app>
+      <div class="form bottom-bar">
+          <md-field>
+              <label>Message</label>
+              <md-input v-model="message"></md-input>
+          </md-field>
+    <md-button class="md-fab md-mini" @click="sendMessage">
+      <md-icon>send</md-icon>
+    </md-button>
+      </div>
+  </div>
 </template>
 
 <script>
@@ -80,7 +97,8 @@ export default {
     return {
       conversation: {},
       members: {},
-      token: this.$user.token
+      token: this.$user.token,
+      message: ''
     };
   },
   mounted() {
@@ -103,6 +121,7 @@ export default {
                 Vue.set(self.conversation, id, convs[conv][id]);
                 }
             }
+            self.scrollToBottom();
           }
         }
       );
@@ -133,10 +152,41 @@ export default {
       this.$db.removeMessage(this.$user.token, this.id, msgId, (err) => {
         if (err) console.log(err.message);
       });
+    },
+
+    scrollToBottom () {
+      console.log('Scroll To Bottom()');
+      const el = this.$el.getElementsByClassName('msgList')[0]['childNodes'][this.conversation.messages.length - 1];
+
+      if (el) {
+        el.scrollIntoView();
+      }
+    },
+
+    sendMessage () {
+      var self = this;
+      if (this.message == '') return;
+      this.$db.addMessage(this.$user.token, this.id, this.message, (err, msg) => {
+        if (err) console.log(err.message);
+        else {
+          self.message = '';
+          self.refresh();
+        }
+      });
     }
   }
 };
 </script>
 
 <style>
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  background-color: white;
+  height: 13vh;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  padding: 2%;
+}
 </style>

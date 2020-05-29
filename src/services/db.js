@@ -520,7 +520,7 @@ function addMessage (token, convId, content, cb) {
 
     // Check Calling User is Member
     var userInMembers = false;
-    for (id in conversations[convId].members) {
+    for (var id in conversations[convId].members) {
         if (id == token) userInMembers = true;
     }
     if (!userInMembers) {
