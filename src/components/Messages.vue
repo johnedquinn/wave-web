@@ -1,5 +1,6 @@
 <template>
-  <md-app>
+  <md-app style="height: 100vh;">
+
     <!-- TOOLBAR -->
     <md-app-toolbar class="md-primary">
       <md-button class="md-icon-button" to="/conversations">
@@ -11,7 +12,7 @@
       >
         <img :src="conversation.img" />
       </md-avatar>
-      <md-avatar v-else class="md-large">
+      <md-avatar v-else class="md-medium">
         <md-icon>perm_identity</md-icon>
       </md-avatar>
       <span class="md-title">{{ conversation.name }}</span>
@@ -137,4 +138,5 @@ export default {
 };
 </script>
 
-<style></style>
+<style>
+</style>

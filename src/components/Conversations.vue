@@ -1,5 +1,7 @@
 <template>
-    <md-app>
+    <md-app style="height: 100vh;">
+
+
       <md-app-toolbar class="md-primary">
         <h3 class="md-title">Conversations</h3>
         <md-button class="md-icon-button" @click="refresh">
@@ -29,7 +31,10 @@
 
             <div class="md-list-item-text" @click="open(conv.id)">
                 <span>{{ conv.name }}</span>
-                <p v-if="conv.messages[conv.messages.length - 1].content.length > 35">
+                <p v-if="!conv.messages || conv.messages.length < 1">
+                    No Messages Yet
+                </p>
+                <p v-else-if="conv.messages[conv.messages.length - 1].content.length > 35">
                     {{ conv.messages[conv.messages.length - 1].content.substring(0, 35) + '...'}}
                 </p>
                 <p v-else>
@@ -54,7 +59,13 @@
         </md-list-item>
         </div>
       </md-list>
+
+    <!-- FAB -->
+    <md-button class="md-fab bottom-right" @click="createConv">
+      <md-icon>add</md-icon>
+    </md-button>
       </md-app-content>
+
 
     </md-app>
 </template>
@@ -107,10 +118,28 @@ export default {
         },
         leave (id) {
             console.log("Conversations File: Leave(" + id + ")");
+        },
+        createConv () {
+            var self = this;
+            this.$db.addConversation(this.$user.token, {
+                name: 'NewConversation',
+                img: '',
+                members: [ this.$user.token ]
+            }, (err, conv) => {
+                if (err) console.log(err.message);
+                else {
+                    self.$router.push({ path: '/conversation/' + conv.id });
+                }
+            });
         }
     }
 }
 </script>
 
 <style>
+.bottom-right {
+    position: fixed;
+    bottom: 5%;
+    right: 5%;
+}
 </style>

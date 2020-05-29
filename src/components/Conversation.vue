@@ -15,7 +15,6 @@
       </md-app-toolbar>
 
       <md-app-content>
-        <h1>Conversation #{{ id }}</h1>
         <div class="form" style="padding: 2em;">
           <md-field>
               <label>Name</label>
@@ -68,8 +67,6 @@ export default {
             this.$db.updateConversation(this.$user.token, this.conversation, (err, conv) => {
                 if (err) alert(err.message);
                 else {
-                    //this.$conversation.name = conv.name;
-                    //this.$conversation.img = conv.img;
                     this.$router.back();
                 }
             });
