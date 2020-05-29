@@ -580,7 +580,7 @@ function removeMessage (token, convId, msgId, cb) {
     
     // Check Calling User is Member
     var userInMembers = false;
-    for (id in conversations[convId].members) {
+    for (var id in conversations[convId].members) {
         if (id == token) userInMembers = true;
     }
     if (!userInMembers) {
@@ -596,7 +596,8 @@ function removeMessage (token, convId, msgId, cb) {
 
     // Find Message Index
     var msgIndex = 0; var messageFound = false;
-    for (var message in conversations[convId].messages) {
+    for (var message of conversations[convId].messages) {
+        console.log("Comparing (" + message.id + ") with (" + msgId + ")")
         if (message.id == msgId) { messageFound = true; break; }
         msgIndex++;
     }
