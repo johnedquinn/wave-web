@@ -7,7 +7,7 @@ import VueMaterial from 'vue-material'
 import 'vue-material/dist/vue-material.min.css'
 import 'vue-material/dist/theme/default.css' // el tema
 
-import db from './services/db.js';
+import db from './services/db_rest.js';
 
 Vue.use(VueMaterial) 
 
