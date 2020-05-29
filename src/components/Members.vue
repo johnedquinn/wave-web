@@ -2,7 +2,7 @@
   <md-app>
     <!-- TOOLBAR -->
     <md-app-toolbar class="md-primary">
-      <md-button class="md-icon-button" to="/conversations">
+      <md-button class="md-icon-button" @click="go_to_messages">
         <md-icon>arrow_back</md-icon>
       </md-button>
       <md-avatar
@@ -21,7 +21,6 @@
     </md-app-toolbar>
 
     <md-app-content>
-        
       <md-list class="md-double-line md-dense">
         <div :key="member.id" v-for="member in members">
           <!--<md-divider
@@ -31,10 +30,7 @@
           <md-list-item>
             <!-- ICON -->
             <md-avatar
-              v-if="
-                  member.img &&
-                  member.img != ''
-              "
+              v-if="member.img && member.img != ''"
               class="md-avatar-icon"
             >
               <img :src="member.img" />
@@ -44,35 +40,45 @@
             </md-avatar>
 
             <div class="md-list-item-text">
-              <!--<span>{{ message.content }}</span>-->
               <p>
                 {{ member.name }}
                 {{ member.surname }}
               </p>
             </div>
-
-            <!--<md-menu md-size="medium" md-direction="bottom-end">
-              <md-button v-if="token == message.author" class="md-icon-button">
-                <md-icon>delete</md-icon>
-              </md-button>
-            </md-menu>-->
           </md-list-item>
         </div>
       </md-list>
+
+      <!-- Dialog -->
+      <md-dialog :md-active.sync="selectUser">
+        <md-dialog-title>Select user</md-dialog-title>
+        <!--<Users :method="joinUser"></Users>-->
+        <Users @selected="joinUser"></Users>
+        <md-dialog-actions>
+          <md-button class="md-primary" @click="selectUser = false">
+            Close
+          </md-button>
+        </md-dialog-actions>
+      </md-dialog>
     </md-app-content>
   </md-app>
 </template>
 
 <script>
 import Vue from "vue";
+import Users from "@/components/Users";
 export default {
   name: "Members",
   props: ["id"],
+  components: {
+    Users
+  },
   data() {
     return {
       conversation: {},
       members: {},
-      token: this.$user.token
+      token: this.$user.token,
+      selectUser: false
     };
   },
   mounted() {
@@ -107,7 +113,27 @@ export default {
       }
       console.log(JSON.stringify(this.members));
     },
-    add_member() {}
+    add_member() {
+      this.selectUser = true;
+    },
+    go_to_messages() {
+      this.$router.push({ path: "/conversation/" + this.id + "/messages" });
+    },
+    joinUser(value) {
+      console.log("joinUser: ", value);
+      this.$db.joinConversation(
+        this.$user.token,
+        this.id,
+        value.id,
+        (err, convs) => {
+          if (err) alert("Error: " + err.message);
+          else {
+            //convs.forEach(conv => { self.conversations.push(conv); });
+            this.refresh();
+          }
+        }
+      );
+    }
   }
 };
 </script>
