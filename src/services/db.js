@@ -248,7 +248,9 @@ function addConversation (token, conv, cb) {
 
     // Check Conversation Exists
     if (!conv) throw new Error('Conversation Not Specified');
-    if (!conv.name || !conv.img || !conv.members) throw new Error('Missing Conversation Data');
+    if (!conv.name || !conv.members) throw new Error('Missing Conversation Data');
+
+    if (!conv.img) conv.img = '';
 
     // Create New Conversation Variable
     var newConv = {
@@ -298,11 +300,15 @@ function updateConversation (token, conv, cb) {
     }
 
     // Check Conv Attributes
-    if (!conv.name || !conv.img || !conv.members || !conv.messages) throw new Error('Missing Conversation Data');
+    if (!conv.name || !conv.members || !conv.messages) throw new Error('Missing Conversation Data');
+
+    if (!conv.img) conv.img = '';
 
     // Check User is Member in Conversation
     var callerInConv = false;
-    for (var member in conversations[convId]['members'])
+    console.log('Members:');
+    for (var member of conversations[convId]['members'])
+        console.log(member);
         if (userId == member) callerInConv = true;
     if (!callerInConv) {
         if (cb) cb(new Error('Caller Not in Conversation'));
