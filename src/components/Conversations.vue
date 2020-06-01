@@ -88,7 +88,7 @@ export default {
             console.log("Conversations File: Refresh()");
             var self = this;
             this.conversations.splice(0, this.conversations.length);
-            this.$db.listConversations(this.$user.token, { members: this.$user.token }, (err, convs) => {
+            this.$db.listConversations(this.$user.token, { token: this.$user.token }, (err, convs) => {
                 if (err) alert("Error: " + err.message);
                 else {
                     convs.forEach(conv => { self.conversations.push(conv); });

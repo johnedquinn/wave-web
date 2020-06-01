@@ -151,14 +151,17 @@ function addConversation (token, conv, cb) {
     }
     newConv.messages = [];
     newConv.id = String(Date.now());
+    newConv.token = token;
 
     // Add New Conversation to Conversations
     //conversations[newConv.id] = newConv;
     //conv.id = newConv.id;
 
+    var params = {};
+    params.token = token;
 
     //if (cb) cb(null, conv);
-    axios.post(url_conversations, newConv) .then((resp) => {
+    axios.post(url_conversations, newConv, { params: params }) .then((resp) => {
         console.log('success: ' + JSON.stringify(resp.data));
         cb(null, resp.data); })
     .catch((err) => {
@@ -169,6 +172,78 @@ function addConversation (token, conv, cb) {
             cb(err);
         }
     });
+}
+
+/// @func:  updateConversation
+/// @param: token - NA
+/// @param: conv - NA
+/// @param: cb - NA
+/// @desc:  NA
+function updateConversation (token, conv, cb) {
+    console.log('updateConversation(' + JSON.stringify(conv) + ')');
+    console.log('Conversation Data: ' + JSON.stringify(conv));
+
+    // Check Token Exists
+    if (!token) {
+        if (cb) cb(new Error('Invalid Token'));
+        return;
+    }
+
+    // Check Conv Argument Exists
+    if (!conv) throw new Error('Conversation Not Specified');
+
+    // Check Conv Attributes
+    if (!conv.name || !conv.messages) throw new Error('Missing Conversation Data');
+
+    if (!conv.img) conv.img = '';
+
+    var params = {};
+    params.token = token;
+
+    axios.post(url_conversations + '/' + conv.id, conv) .then((resp) => {
+        console.log('success: ' + JSON.stringify(resp.data));
+        cb(null, resp.data); })
+    .catch((err) => {
+        if (err.response) {
+            cb(new Error(err.response.status)); } else if (err.request) {
+            cb(new Error('No response received'));
+        } else {
+            cb(err);
+        }
+    });
+
+    // Check Valid Token
+    /*var userId = users[token] ? token : null;
+    if (!userId) {
+        if (cb) cb(new Error('Invalid Token'));
+        return;
+    }*/
+
+    // Check Conversation Exists
+    /*var convId = conversations[conv.id] ? conv.id : null;
+    if (!convId) {
+        if (cb) cb(new Error('No Conversation with Specified ID'));
+        return;
+    }*/
+
+    // Check User is Member in Conversation
+    /*var callerInConv = false;
+    console.log('Members:');
+    for (var member of conversations[convId]['members'])
+        console.log(member);
+        if (userId == member) callerInConv = true;
+    if (!callerInConv) {
+        if (cb) cb(new Error('Caller Not in Conversation'));
+        return;
+    }*/
+
+    // Set Conv Information
+    /*conversations[convId].name = conv.name;
+    conversations[convId].img = conv.img;
+    conversations[convId].members = conv.members;
+    conversations[convId].messages = conv.messages;*/
+
+    if (cb) cb(null, users[token]);
 }
 
 /// @func:  listConversations
@@ -238,5 +313,6 @@ export default {
     listUsers,
     updateUser,
     addConversation,
+    updateConversation,
     listConversations
 }
