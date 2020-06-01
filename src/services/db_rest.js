@@ -243,7 +243,7 @@ function updateConversation (token, conv, cb) {
     conversations[convId].members = conv.members;
     conversations[convId].messages = conv.messages;*/
 
-    if (cb) cb(null, users[token]);
+    //if (cb) cb(null, users[token]);
 }
 
 /// @func:  listConversations
@@ -261,6 +261,7 @@ function listConversations (token, query, cb) {
     }
 
     query.token = token;
+    console.log("QUERY: " + JSON.stringify(query));
 
     axios.get(url_conversations, { params: query })
     .then((resp) => {
@@ -307,6 +308,72 @@ function listConversations (token, query, cb) {
     if (cb) cb(null, results);*/
 }
 
+/// @func:  listMessages
+/// @param: token - NA
+/// @param: convId - NA
+/// @param: ini - NA
+/// @param: end - NA
+/// @param: cb - NA
+/// @desc:  NA
+function listMessages (token, convId, ini, end, cb) {
+    console.log('listMessages(' + convId + ')');
+    
+    // Check Token Exists
+    if (!token) {
+        if (cb) cb(new Error('Invalid Token'));
+        return;
+    }
+
+    // Check Conversation ID Argument Exists
+    if (!convId) {
+        if (cb) cb(new Error('Missing Conversation ID'));
+        return;
+    }
+
+    var query = {};
+    query.token = token;
+
+    axios.get(url_conversations + '/' + convId + '/messages', { params: query })
+    .then((resp) => {
+        console.log('success: ' + JSON.stringify(resp.data));
+        cb(null, resp.data);
+    }).catch((err) => {
+        if (err.response) {
+            cb(new Error(err.response.status));
+        } else if (err.request) {
+            cb(new Error('No response received'));
+        } else {
+            cb(err);
+        }
+    });
+
+    // Check Valid Token
+    /*var userId = users[token] ? token : null;
+    if (!userId) {
+        if (cb) cb(new Error('Invalid Token'));
+        return;
+    }*/
+
+
+    // Check Conversation Exists
+    /*if (!conversations[convId]) {
+        if (cb) cb(new Error('Conversation Does Not Exist'));
+        return;
+    }*/
+    
+    // Check Calling User is Member
+    /*var userInMembers = false;
+    for (id in conversations[convId].members) {
+        if (id == token) userInMembers = true;
+    }
+    if (!userInMembers) {
+        if (cb) cb(new Error('User Not in Conversation'));
+        return;
+    }*/
+
+    //if (cb) cb(null, conversations[convId].messages.slice(ini, end));
+}
+
 export default {
     addUser,
     login,
@@ -314,5 +381,6 @@ export default {
     updateUser,
     addConversation,
     updateConversation,
-    listConversations
+    listConversations,
+    listMessages
 }

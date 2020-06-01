@@ -6,7 +6,7 @@ require('ini.php');
  * @func  ADD CONVERSATION
  */
 if (!$_SERVER['PATH_INFO'] and $_SERVER['REQUEST_METHOD'] == 'POST') {
-    error_log('Creating Conversation');
+    error_log('@@@@@@@@@@ Creating Conversation @@@@@@@@@@');
     $conv = json_decode(file_get_contents('php://input'), true);
     error_log("Conversation: " . print_r($conv, true));
 
@@ -36,12 +36,47 @@ if (!$_SERVER['PATH_INFO'] and $_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     
+/*
+ * @func  LIST MESSAGES
+ */
+} else if ($_SERVER['PATH_INFO'] and basename($_SERVER['PATH_INFO']) == 'messages' and $_SERVER['REQUEST_METHOD'] == 'GET') {
+    error_log('@@@@@@@@@@ Listing Messages of ' . $_SERVER['PATH_INFO'] . ' @@@@@@@@@@');
+
+    // Get Conversation ID from Path
+    $convId = basename(dirname($_SERVER['PATH_INFO']));
+    error_log("- ConvId = " . $convId);
+
+    // Create Query Message
+    $sql_msgs = "SELECT * FROM messages WHERE conversation = '" . $convId . "';";
+
+    // Make Request and Parse Response
+    $msgs = array();
+    $res = $db->query($sql_msgs);
+    if ($res) {
+        while ($row = $res->fetchArray()) {
+            $msg = array(
+            'id' => $row['id'],
+            'ts' => $row['ts'],
+            'author' => $row['author'],
+            'content' => $row['content'], // @TODO: FIX THIS
+            'conversation' => $row['conversation']
+            );
+            array_push($msg, $msgs);
+        }
+        header('Content-Type: application/json');
+        echo json_encode($msgs);
+    } else {
+        error_log('Messages Not Listed');
+        http_response_code(500);
+        echo $db->lastErrorMsg();
+    }
+
 
 /*
  * @func  LIST CONVERSATIONS
  */
 } else if (!$_SERVER['PATH_INFO'] and $_SERVER['REQUEST_METHOD'] == 'GET') {
-    error_log('Listing Conversations');
+    error_log('@@@@@@@@@@ Listing Conversations @@@@@@@@@@');
 
     // Get all conversation IDs where caller is a member
     $sql_members = "SELECT * from members WHERE user = '" . $_GET['token'] . "';";
@@ -85,9 +120,9 @@ if (!$_SERVER['PATH_INFO'] and $_SERVER['REQUEST_METHOD'] == 'POST') {
     // Connect the SQL Request
     if ($where) {
         $sql_convs = $sql_convs . ' WHERE ' . $where;
-        if ($list) $sql_convs = $sql_convs . ' AND ' . $list;
+        if ($list && !$_REQUEST['id']) $sql_convs = $sql_convs . ' AND ' . $list;
     } else {
-        if ($list) $sql_convs = $sql_convs . ' WHERE ' . $list;
+        if ($list && !$_REQUEST['id']) $sql_convs = $sql_convs . ' WHERE ' . $list;
     }
     error_log($sql_convs);
 
@@ -117,7 +152,7 @@ if (!$_SERVER['PATH_INFO'] and $_SERVER['REQUEST_METHOD'] == 'POST') {
  * @func  UPDATE CONVERSATION
  */
 } elseif ($_SERVER['PATH_INFO'] and $_SERVER['REQUEST_METHOD'] == 'POST') {
-    error_log('Updating Conversation ' . $conv['id']);
+    error_log('@@@@@@@@@@ Updating Conversation ' . $conv['id'] . " @@@@@@@@@@");
     error_log("Path: " . basename($_SERVER['PATH_INFO']));
     $convId = basename($_SERVER['PATH_INFO']);
     $conv = json_decode(file_get_contents('php://input'), true);

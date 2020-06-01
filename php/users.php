@@ -7,7 +7,7 @@ require('ini.php');
  */
 if (!$_SERVER['PATH_INFO'] and $_SERVER['REQUEST_METHOD'] == 'POST') {
     // addUser
-    error_log('Creating User');
+    error_log('@@@@@@@@@@ Creating User @@@@@@@@@@');
     $user = json_decode(file_get_contents('php://input'), true);
     $res = $db->exec("INSERT INTO users VALUES('" . $user['id'] . "','" . $user['email'] . "','" . $user['name'] . "','" .
     $user['surname'] . "','" . $user['password'] . "','" . $user['img'] . "')");
@@ -24,6 +24,7 @@ if (!$_SERVER['PATH_INFO'] and $_SERVER['REQUEST_METHOD'] == 'POST') {
  * @func  LOGIN
  */
 } elseif ($_SERVER['PATH_INFO'] == '/login' and $_SERVER['REQUEST_METHOD'] == 'POST') {
+    error_log('@@@@@@@@@@ Logging in User @@@@@@@@@@');
     $credentials = json_decode(file_get_contents('php://input'), true);
     $email = $credentials['email'];
     $password = $credentials['password'];
@@ -50,6 +51,7 @@ if (!$_SERVER['PATH_INFO'] and $_SERVER['REQUEST_METHOD'] == 'POST') {
  * @func  LIST USERS
  */
 } elseif (!$_SERVER['PATH_INFO'] and $_SERVER['REQUEST_METHOD'] == 'GET') {
+    error_log('@@@@@@@@@@ Listing Users @@@@@@@@@@');
     $sql = "SELECT * FROM users";
     $where = '';
     foreach ($_GET as $key => $val) {

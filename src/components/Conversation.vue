@@ -56,6 +56,7 @@ export default {
           if (err) alert(err.message);
           else {
             for (var id in convs[0]) {
+              console.log("RECEIVED FROM LIST CONVS: " + JSON.stringify(convs));
               Vue.set(this.conversation, id, convs[0][id]);
             }
           }

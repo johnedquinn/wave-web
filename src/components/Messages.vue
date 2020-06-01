@@ -107,7 +107,7 @@ export default {
   methods: {
     refresh() {
       var self = this;
-      this.$db.listConversations(
+      /*this.$db.listConversations(
         this.$user.token,
         { },
         (err, convs) => {
@@ -137,7 +137,13 @@ export default {
           }
         });
       }
-      console.log(JSON.stringify(this.members));
+      console.log(JSON.stringify(this.members));*/
+      this.$db.listMessages(this.$user.token, this.id, 0, 0, (err, msgs) => {
+        if (err) alert(err.message);
+        else {
+            console.log("Messages: " + JSON.stringify(msgs));
+        }
+      });
     },
     move_down() {
       //
