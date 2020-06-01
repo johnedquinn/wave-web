@@ -30,14 +30,14 @@
 
     <md-app-content>
       <md-list class="md-double-line md-dense msgList">
-        <div :key="message.id" v-for="message in conversation['messages']">
+        <div :key="message.id" v-for="message in messages">
           <md-divider
             class="md-inset"
-            v-if="message != conversation['messages'][0]"
+            v-if="message != messages[0]"
           ></md-divider>
           <md-list-item>
             <!-- ICON -->
-            <md-avatar
+            <!--<md-avatar
               v-if="
                 members[message.author] &&
                   members[message.author].img &&
@@ -49,15 +49,15 @@
             </md-avatar>
             <md-avatar v-else class="md-large">
               <md-icon>group</md-icon>
-            </md-avatar>
+            </md-avatar>-->
 
             <div class="md-list-item-text">
               <span>{{ message.content }}</span>
-              <p v-if="members[message.author]">
+              <!--<p v-if="members[message.author]">
                 {{ members[message.author].name }}
                 {{ members[message.author].surname }} {{ message.ts }}
               </p>
-              <p v-else>Unknown Member {{ message.ts }}</p>
+              <p v-else>Unknown Member {{ message.ts }}</p>-->
             </div>
 
             <md-menu md-size="medium" md-direction="bottom-end">
@@ -97,6 +97,7 @@ export default {
     return {
       conversation: {},
       members: {},
+      messages: [],
       token: this.$user.token,
       message: ''
     };
@@ -141,7 +142,9 @@ export default {
       this.$db.listMessages(this.$user.token, this.id, 0, 0, (err, msgs) => {
         if (err) alert(err.message);
         else {
+            this.messages.splice(0, this.messages.length);
             console.log("Messages: " + JSON.stringify(msgs));
+            msgs.forEach(msg => { self.messages.push(msg); });
         }
       });
     },

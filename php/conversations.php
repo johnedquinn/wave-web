@@ -35,6 +35,43 @@ if (!$_SERVER['PATH_INFO'] and $_SERVER['REQUEST_METHOD'] == 'POST') {
         echo $db->lastErrorMsg();
     }
 
+/*
+ * @func  ADD MESSAGES
+ */
+} else if ($_SERVER['PATH_INFO'] and basename($_SERVER['PATH_INFO']) == 'messages' and $_SERVER['REQUEST_METHOD'] == 'POST') {
+    error_log('@@@@@@@@@@ Adding Message to ' . $_SERVER['PATH_INFO'] . ' @@@@@@@@@@');
+
+    // Get Conversation ID from Path
+    $convId = basename(dirname($_SERVER['PATH_INFO']));
+    error_log("- ConvId = " . $convId);
+
+    // Get Token from Params
+    $token = $_REQUEST['token'];
+
+    // Get Message from Data
+    $msg = json_decode(file_get_contents('php://input'), true);
+
+    // Create Query
+    $sql_msg = "INSERT INTO messages VALUES('" . 
+        $msg['id'] . "', " .
+        $msg['ts'] . ", '" .
+        $msg['author'] . "', '" .
+        $msg['content'] . "', '" .
+        $convId . "');";
+    error_log($sql_msg);
+
+    // Insert into Messages Database
+    $res = $db->exec($sql_msg);
+    if ($res) {
+        error_log('Message Created');
+        header('Content-Type: application/json');
+        echo json_encode($msg);
+    } else {
+        error_log('Message Not Created');
+        http_response_code(500);
+        echo $db->lastErrorMsg();
+    }
+
     
 /*
  * @func  LIST MESSAGES
@@ -61,7 +98,7 @@ if (!$_SERVER['PATH_INFO'] and $_SERVER['REQUEST_METHOD'] == 'POST') {
             'content' => $row['content'], // @TODO: FIX THIS
             'conversation' => $row['conversation']
             );
-            array_push($msg, $msgs);
+            array_push($msgs, $msg);
         }
         header('Content-Type: application/json');
         echo json_encode($msgs);

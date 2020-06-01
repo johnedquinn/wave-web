@@ -308,6 +308,88 @@ function listConversations (token, query, cb) {
     if (cb) cb(null, results);*/
 }
 
+/// @func:  addMessage
+/// @param: token - NA
+/// @param: convId - NA
+/// @param: content - NA
+/// @param: cb - NA
+/// @desc:  NA
+function addMessage (token, convId, content, cb) {
+    console.log('addMessage(' + convId + ')');
+    
+    // Check Token Exists
+    if (!token) {
+        if (cb) cb(new Error('Invalid Token'));
+        return;
+    }
+
+    // Check Conversation ID Argument Exists
+    if (!convId) {
+        if (cb) cb(new Error('Missing Conversation ID'));
+        return;
+    }
+
+    // Check Content Argument Exists
+    if (!content) {
+        if (cb) cb(new Error('Missing Message Content'));
+        return;
+    }
+
+    // Create New User Variable
+    var newMsg = {
+        ts: Date.now(),
+        author: token,
+        content: content
+    }
+    newMsg.id = String(Date.now());
+
+    var query = {};
+    query.token = token;
+
+    axios.post(url_conversations + '/' + convId + '/messages', newMsg, { params: query })
+    .then((resp) => {
+        console.log('success: ' + JSON.stringify(resp.data));
+        cb(null, resp.data);
+    }).catch((err) => {
+        if (err.response) {
+            cb(new Error(err.response.status));
+        } else if (err.request) {
+            cb(new Error('No response received'));
+        } else {
+            cb(err);
+        }
+    });
+
+    // Check Valid Token
+    /*var userId = users[token] ? token : null;
+    if (!userId) {
+        if (cb) cb(new Error('Invalid Token'));
+        return;
+    }*/
+
+    // Check Conversation Exists
+    /*if (!conversations[convId]) {
+        if (cb) cb(new Error('Conversation Does Not Exist'));
+        return;
+    }*/
+
+    // Check Calling User is Member
+    /*var userInMembers = false;
+    for (var id in conversations[convId].members) {
+        if (id == token) userInMembers = true;
+    }
+    if (!userInMembers) {
+        if (cb) cb(new Error('User Not in Conversation'));
+        return;
+    }*/
+
+
+
+    // Add New User
+    /*conversations[convId].messages.push(newMsg);
+    if (cb) cb(null, newMsg);*/
+}
+
 /// @func:  listMessages
 /// @param: token - NA
 /// @param: convId - NA
@@ -382,5 +464,6 @@ export default {
     addConversation,
     updateConversation,
     listConversations,
+    addMessage,
     listMessages
 }
