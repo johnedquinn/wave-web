@@ -108,7 +108,9 @@ export default {
   methods: {
     refresh() {
       var self = this;
-      /*this.$db.listConversations(
+
+      // Get Conversation
+      this.$db.listConversations(
         this.$user.token,
         { },
         (err, convs) => {
@@ -122,12 +124,11 @@ export default {
                 Vue.set(self.conversation, id, convs[conv][id]);
                 }
             }
-            self.scrollToBottom();
           }
         }
       );
-      console.log(JSON.stringify(self.conversation["members"]));
 
+      /*
       for (var id of self.conversation["members"]) {
         console.log(id);
         this.$db.listUsers(this.$user.token, { id: id }, (err, member) => {
@@ -139,6 +140,8 @@ export default {
         });
       }
       console.log(JSON.stringify(this.members));*/
+
+      // Get Messages List
       this.$db.listMessages(this.$user.token, this.id, 0, 0, (err, msgs) => {
         if (err) alert(err.message);
         else {
@@ -147,6 +150,9 @@ export default {
             msgs.forEach(msg => { self.messages.push(msg); });
         }
       });
+
+      // Scroll to Last Message
+      self.scrollToBottom();
     },
     move_down() {
       //
@@ -165,7 +171,7 @@ export default {
 
     scrollToBottom () {
       console.log('Scroll To Bottom()');
-      const el = this.$el.getElementsByClassName('msgList')[0]['childNodes'][this.conversation.messages.length - 1];
+      const el = this.$el.getElementsByClassName('msgList')[0]['childNodes'][this.messages.length - 1];
 
       if (el) {
         el.scrollIntoView();

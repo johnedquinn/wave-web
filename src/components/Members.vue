@@ -99,19 +99,18 @@ export default {
           }
         }
       );
-      console.log(JSON.stringify(self.conversation["members"]));
 
-      for (var id of self.conversation["members"]) {
-        console.log(id);
-        this.$db.listUsers(this.$user.token, { id: id }, (err, member) => {
-          if (err) alert(err.message);
-          else {
-            console.log(member);
-            Vue.set(self.members, member[0]["id"], member[0]);
+      // Get Members
+      this.$db.listMembers(this.$user.token, this.id, (err, members) => {
+        if (err) alert(err.message);
+        else {
+          for (var member of Object.values(members)) {
+            console.log("Member: " + JSON.stringify(member));
+            Vue.set(self.members, member.id, member);
           }
-        });
-      }
-      console.log(JSON.stringify(this.members));
+        }
+      });
+
     },
     add_member() {
       this.selectUser = true;

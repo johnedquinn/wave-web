@@ -454,7 +454,49 @@ function listMessages (token, convId, ini, end, cb) {
     }*/
 
     //if (cb) cb(null, conversations[convId].messages.slice(ini, end));
+
 }
+
+/// @func:  listMembers
+/// @param: token - NA
+/// @param: convId - NA
+/// @param: ini - NA
+/// @param: end - NA
+/// @param: cb - NA
+/// @desc:  NA
+function listMembers (token, convId, cb) {
+    console.log('listMessages(' + convId + ')');
+    
+    // Check Token Exists
+    if (!token) {
+        if (cb) cb(new Error('Invalid Token'));
+        return;
+    }
+
+    // Check Conversation ID Argument Exists
+    if (!convId) {
+        if (cb) cb(new Error('Missing Conversation ID'));
+        return;
+    }
+
+    var query = {};
+    query.token = token;
+
+    axios.get(url_conversations + '/' + convId + '/members', { params: query })
+    .then((resp) => {
+        console.log('success: ' + JSON.stringify(resp.data));
+        cb(null, resp.data);
+    }).catch((err) => {
+        if (err.response) {
+            cb(new Error(err.response.status));
+        } else if (err.request) {
+            cb(new Error('No response received'));
+        } else {
+            cb(err);
+        }
+    });
+}
+
 
 export default {
     addUser,
@@ -465,5 +507,6 @@ export default {
     updateConversation,
     listConversations,
     addMessage,
+    listMembers,
     listMessages
 }
