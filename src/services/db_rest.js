@@ -58,6 +58,8 @@ function login(email, password, cb) {
 /// @desc:  NA
 function listUsers(token, query, cb) {
     console.log(`listUsers(${token},${JSON.stringify(query)})`);
+
+    if (!query) query = {};
     query.token = token;
     axios.get(url_users, { params: query })
     .then((resp) => {
@@ -130,13 +132,6 @@ function addConversation (token, conv, cb) {
         return;
     }
 
-    // Check Valid Token
-    /*var userId = users[token] ? token : null;
-    if (!userId) {
-        if (cb) cb(new Error('Invalid Token'));
-        return;
-    }*/
-
     // Check Conversation Exists
     if (!conv) throw new Error('Conversation Not Specified');
     if (!conv.name || !conv.members) throw new Error('Missing Conversation Data');
@@ -153,9 +148,6 @@ function addConversation (token, conv, cb) {
     newConv.id = String(Date.now());
     newConv.token = token;
 
-    // Add New Conversation to Conversations
-    //conversations[newConv.id] = newConv;
-    //conv.id = newConv.id;
 
     var params = {};
     params.token = token;
@@ -172,6 +164,96 @@ function addConversation (token, conv, cb) {
             cb(err);
         }
     });
+}
+
+/// @func:  joinConversation
+/// @param: token - NA
+/// @param: convId - NA
+/// @param: usrId - NA
+/// @param: cb - NA
+/// @desc:  NA
+function joinConversation (token, convId, usrId, cb) {
+    console.log('joinConversation(' + convId + ',' + usrId + ')');
+    
+    // Check Token Exists
+    if (!token) {
+        if (cb) cb(new Error('Invalid Token'));
+        return;
+    }
+
+    // Check Conversation ID Argument Exists
+    if (!convId) {
+        if (cb) cb(new Error('Missing Conversation ID'));
+        return;
+    }
+
+    // Check Joined User ID Argument Exists
+    if (!usrId) {
+        if (cb) cb(new Error('Missing User ID'));
+        return;
+    }
+
+    //
+    var params = {};
+    params.token = token;
+
+    // 
+    var data = {};
+    data.user = usrId;
+
+    //
+    axios.post(url_conversations + '/' + convId + '/members', data, { params: params }) .then((resp) => {
+        console.log('success: ' + JSON.stringify(resp.data));
+        cb(null, resp.data); })
+    .catch((err) => {
+        if (err.response) {
+            cb(new Error(err.response.status)); } else if (err.request) {
+            cb(new Error('No response received'));
+        } else {
+            cb(err);
+        }
+    });
+
+}
+
+/// @func:  leaveConversation
+/// @param: token - NA
+/// @param: convId - NA
+/// @param: cb - NA
+/// @desc:  NA
+function leaveConversation (token, convId, cb) {
+    console.log('leaveConversation(' + convId + ')');
+    
+    // Check Token Exists
+    if (!token) {
+        if (cb) cb(new Error('Invalid Token'));
+        return;
+    }
+
+    // Check Conversation ID Argument Exists
+    if (!convId) {
+        if (cb) cb(new Error('Missing Conversation ID'));
+        return;
+    }
+
+    //
+    var params = {};
+    params.token = token;
+
+    //
+    axios.delete(url_conversations + '/' + convId + '/members', { params: params })
+    .then((resp) => {
+        console.log('success: ' + JSON.stringify(resp.data));
+        cb(null, resp.data); })
+    .catch((err) => {
+        if (err.response) {
+            cb(new Error(err.response.status)); } else if (err.request) {
+            cb(new Error('No response received'));
+        } else {
+            cb(err);
+        }
+    });
+
 }
 
 /// @func:  updateConversation
@@ -211,39 +293,6 @@ function updateConversation (token, conv, cb) {
             cb(err);
         }
     });
-
-    // Check Valid Token
-    /*var userId = users[token] ? token : null;
-    if (!userId) {
-        if (cb) cb(new Error('Invalid Token'));
-        return;
-    }*/
-
-    // Check Conversation Exists
-    /*var convId = conversations[conv.id] ? conv.id : null;
-    if (!convId) {
-        if (cb) cb(new Error('No Conversation with Specified ID'));
-        return;
-    }*/
-
-    // Check User is Member in Conversation
-    /*var callerInConv = false;
-    console.log('Members:');
-    for (var member of conversations[convId]['members'])
-        console.log(member);
-        if (userId == member) callerInConv = true;
-    if (!callerInConv) {
-        if (cb) cb(new Error('Caller Not in Conversation'));
-        return;
-    }*/
-
-    // Set Conv Information
-    /*conversations[convId].name = conv.name;
-    conversations[convId].img = conv.img;
-    conversations[convId].members = conv.members;
-    conversations[convId].messages = conv.messages;*/
-
-    //if (cb) cb(null, users[token]);
 }
 
 /// @func:  listConversations
@@ -276,36 +325,6 @@ function listConversations (token, query, cb) {
             cb(err);
         }
     });
-
-    // Check Valid Token
-    /*var userId = users[token] ? token : null;
-    if (!userId) {
-        if (cb) cb(new Error('Invalid Token'));
-        return;
-    }*/
-
-    //
-    /*var results = [];
-    for (var id in conversations) {
-        var matches = !query || !Object.keys(query).length;
-        if (!matches) {
-            for (var cond in query) {
-                if (String(conversations[id][cond]).indexOf(String(query[cond])) != -1) {
-                    matches = true;
-                    break;
-                }
-            }
-        }
-        if (matches) results.push({
-            id: conversations[id].id,
-            name: conversations[id].name,
-            img: conversations[id].img,
-            members: conversations[id].members,
-            messages: conversations[id].messages
-        });
-    }
-
-    if (cb) cb(null, results);*/
 }
 
 /// @func:  addMessage
@@ -359,35 +378,53 @@ function addMessage (token, convId, content, cb) {
             cb(err);
         }
     });
+}
 
-    // Check Valid Token
-    /*var userId = users[token] ? token : null;
-    if (!userId) {
+/// @func:  removeMessage
+/// @param: token - NA
+/// @param: convId - NA
+/// @param: msgId - NA
+/// @param: cb - NA
+/// @desc:  NA
+function removeMessage (token, convId, msgId, cb) {
+    console.log('removeMessage(' + convId + ',' + msgId + ')');
+    
+    // Check Token Exists
+    if (!token) {
         if (cb) cb(new Error('Invalid Token'));
         return;
-    }*/
-
-    // Check Conversation Exists
-    /*if (!conversations[convId]) {
-        if (cb) cb(new Error('Conversation Does Not Exist'));
-        return;
-    }*/
-
-    // Check Calling User is Member
-    /*var userInMembers = false;
-    for (var id in conversations[convId].members) {
-        if (id == token) userInMembers = true;
     }
-    if (!userInMembers) {
-        if (cb) cb(new Error('User Not in Conversation'));
+
+    // Check Conversation ID Argument Exists
+    if (!convId) {
+        if (cb) cb(new Error('Missing Conversation ID'));
         return;
-    }*/
+    }
 
+    // Check Message ID Argument Exists
+    if (!msgId) {
+        if (cb) cb(new Error('Missing Message ID'));
+        return;
+    }
 
+    //
+    var params = {};
+    params.token = token;
 
-    // Add New User
-    /*conversations[convId].messages.push(newMsg);
-    if (cb) cb(null, newMsg);*/
+    //
+    axios.delete(url_conversations + '/' + convId + '/messages/' + msgId, { params: params })
+    .then((resp) => {
+        console.log('success: ' + JSON.stringify(resp.data));
+        cb(null, resp.data); })
+    .catch((err) => {
+        if (err.response) {
+            cb(new Error(err.response.status)); } else if (err.request) {
+            cb(new Error('No response received'));
+        } else {
+            cb(err);
+        }
+    });
+
 }
 
 /// @func:  listMessages
@@ -428,33 +465,6 @@ function listMessages (token, convId, ini, end, cb) {
             cb(err);
         }
     });
-
-    // Check Valid Token
-    /*var userId = users[token] ? token : null;
-    if (!userId) {
-        if (cb) cb(new Error('Invalid Token'));
-        return;
-    }*/
-
-
-    // Check Conversation Exists
-    /*if (!conversations[convId]) {
-        if (cb) cb(new Error('Conversation Does Not Exist'));
-        return;
-    }*/
-    
-    // Check Calling User is Member
-    /*var userInMembers = false;
-    for (id in conversations[convId].members) {
-        if (id == token) userInMembers = true;
-    }
-    if (!userInMembers) {
-        if (cb) cb(new Error('User Not in Conversation'));
-        return;
-    }*/
-
-    //if (cb) cb(null, conversations[convId].messages.slice(ini, end));
-
 }
 
 /// @func:  listMembers
@@ -506,7 +516,10 @@ export default {
     addConversation,
     updateConversation,
     listConversations,
+    joinConversation,
+    leaveConversation,
     addMessage,
+    removeMessage,
     listMembers,
     listMessages
 }

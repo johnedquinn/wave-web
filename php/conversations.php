@@ -2,76 +2,13 @@
 
 require_once('ini.php');
 
-/**
- * @func    get_members_from_IDs
- * @desc    Gets the members of a conversation if token checks out
- * --
- * @param   memberIDs    List of string IDs
- * @return  A dictionary where each key is a member ID and the value is a dictionary containing member info
-**/
-function get_members_from_IDs ($memberIDs) {
-    global $db;
+// Initialize Globals
+$PATH_ARR = null; $METHOD = $_SERVER['REQUEST_METHOD'];
+if ($_SERVER['PATH_INFO']) $PATH_ARR = explode('/', $_SERVER['PATH_INFO']);
+error_log($METHOD . " " . print_r($PATH_ARR, true));
+if ($PATH_ARR) error_log("Path Count: " . count($PATH_ARR));
+error_log("METHOD: " . $METHOD);
 
-    // Check Passed Args
-    if (!$memberIDs || count($memberIDs) == 0) return NULL;
-
-    // Create Query Message
-    $sql = "SELECT * FROM users WHERE id = '" . $memberIDs[0] . "'";
-
-    // Piece together the Query String
-    foreach ($memberIDs as $mid) {
-        if ($mid == $memberIDs[0]) continue;
-        $sql = $sql . " OR id = '" . $mid . "'";
-    }
-
-    // Search Database for Members and Create Object
-    $members = array();
-    $res = $db->query($sql);
-    if ($res) {
-        while ($row = $res->fetchArray()) {
-            $member = array(
-            'id' => $row['id'],
-            'name' => $row['name'],
-            'surname' => $row['surname'],
-            'email' => $row['email'], // @TODO: FIX THIS
-            'img' => $row['img']
-            );
-            $members[$member['id']] = $member;
-        }
-        return $members;
-    } else {
-        return NULL;
-    }
-    
-}
-
-/**
- * @func  get_members
- * @desc  Gets the members of a conversation if token checks out
-**/
-function get_members ($token, $convId) {
-    global $db;
-
-    // Create Query Message
-    $sql_members = "SELECT * FROM members WHERE conversation = '" . $convId . "';";
-
-    // Get Member IDs of Conversation
-    $memberIDs = array();
-    $res = $db->query($sql_members);
-    if ($res) {
-        while ($row = $res->fetchArray()) {
-            $mid = $row['user'];
-            array_push($memberIDs, $mid);
-        }
-    } else {
-        return NULL;
-    }
-
-    // Get the dictionary of members
-    $members = get_members_from_IDs($memberIDs);
-    return $members;
-
-}
 
 /*
  * @func  ADD CONVERSATION
@@ -107,7 +44,7 @@ if (!$_SERVER['PATH_INFO'] and $_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
 /*
- * @func  ADD MESSAGES
+ * @func  ADD MESSAGE
  */
 } else if ($_SERVER['PATH_INFO'] and basename($_SERVER['PATH_INFO']) == 'messages' and $_SERVER['REQUEST_METHOD'] == 'POST') {
     error_log('@@@@@@@@@@ Adding Message to ' . $_SERVER['PATH_INFO'] . ' @@@@@@@@@@');
@@ -143,80 +80,76 @@ if (!$_SERVER['PATH_INFO'] and $_SERVER['REQUEST_METHOD'] == 'POST') {
         echo $db->lastErrorMsg();
     }
 
-    
-/*
- * @func  LIST MESSAGES
- */
-} else if ($_SERVER['PATH_INFO'] and basename($_SERVER['PATH_INFO']) == 'messages' and $_SERVER['REQUEST_METHOD'] == 'GET') {
-    error_log('@@@@@@@@@@ Listing Messages of ' . $_SERVER['PATH_INFO'] . ' @@@@@@@@@@');
+/**
+ * @func    REMOVE MESSAGE
+ * @desc    Removes Message from Conversation
+ * --
+ * @method  DELETE
+ * @route   /conversations.php/<convId>/messages/<msgId>?token=x
+ * @return  Empty on success; Error Message on failure
+**/
+} else if ($PATH_ARR and count($PATH_ARR) == 4 and $PATH_ARR[2] == 'messages' and $METHOD == 'DELETE') {
+    error_log('@@@@@@@@@@ Removing Message @@@@@@@@@@');
 
-    // Get Conversation ID from Path
-    $convId = basename(dirname($_SERVER['PATH_INFO']));
-    error_log("- ConvId = " . $convId);
+    // Get Variables
+    $convId = $PATH_ARR[1];
+    $msgId = $PATH_ARR[3];
+    $token = $_REQUEST['token'];
 
-    // Create Query Message
-    $sql_msgs = "SELECT * FROM messages WHERE conversation = '" . $convId . "';";
-
-    // Make Request and Parse Response
-    $msgs = array();
-    $res = $db->query($sql_msgs);
-    if ($res) {
-        while ($row = $res->fetchArray()) {
-            $msg = array(
-            'id' => $row['id'],
-            'ts' => $row['ts'],
-            'author' => $row['author'],
-            'content' => $row['content'], // @TODO: FIX THIS
-            'conversation' => $row['conversation']
-            );
-            array_push($msgs, $msg);
-        }
+    // Remove Message From Conversation
+    $result = removeMessageFromConv($token, $msgId, $convId);
+    if ($result) {
         header('Content-Type: application/json');
-        echo json_encode($msgs);
+        echo "";
     } else {
-        error_log('Messages Not Listed');
+        error_log('Conversations Not Joined');
+        http_response_code(500);
+        echo $db->lastErrorMsg();
+    }
+
+    
+/**
+ * @func    LIST MESSAGES
+ * @desc    List messages from a conversation
+ * --
+ * @method  GET
+ * @route   /conversations.php/<convId>/messages?token=x
+ * @return  List of message objects on success; Error string on failure
+**/
+} else if ($PATH_ARR and $PATH_ARR[2] == 'messages' and $METHOD == 'GET') {
+    error_log('@@@@@@@@@@ Listing Messages @@@@@@@@@@');
+
+    // Get Passed Arguments
+    $convId = $PATH_ARR[1];
+    $token = $_REQUEST['token'];
+
+    // Get Messages and Send Result
+    $result = getMessagesFromConv($token, $convId);
+    if ($result) {
+        header('Content-Type: application/json');
+        echo json_encode($result);
+    } else {
+        error_log('Messages Could Not Be Listed');
         http_response_code(500);
         echo $db->lastErrorMsg();
     }
 
 
-/*
- * @func  LIST CONVERSATIONS
- */
+/**
+ * @func    LIST CONVERSATIONS
+ * @desc    Queries database to get conversations matching query and with user as a member
+ * --
+ * @return  Returns a list of conversations (each as an object)
+**/
 } else if (!$_SERVER['PATH_INFO'] and $_SERVER['REQUEST_METHOD'] == 'GET') {
     error_log('@@@@@@@@@@ Listing Conversations @@@@@@@@@@');
 
-    // Get all conversation IDs where caller is a member
-    $sql_members = "SELECT * from members WHERE user = '" . $_GET['token'] . "';";
-    error_log($sql_members);
-    $res = $db->query($sql_members);
-    $convs = array();
-    if ($res) {
-        while ($row = $res->fetchArray()) {
-            $convId = $row['conversation'];
-            error_log("Adding " . $convId . " to convs list");
-            array_push($convs, $convId);
-        }
-    } else {
-        error_log('Conversations Not Listed');
-        http_response_code(500);
-        echo $db->lastErrorMsg();
-    }
+    // Get Variables
+    $token = $_GET['token'];
 
-    // Add an extension to our query string dedicated to only using ...
-    // ... conversations that the user is part of
-    $list = '';
-    if (count($convs) == 0) {
-        // continue;
-    } else if (count($convs) == 1) {
-        $list = "id = '" . $convs[0] . "'";
-    } else {
-        $list = "id = '" . $convs[0] . "'";
-        foreach ($convs as $convId) {
-            $list = $list . " OR id = '" . $convId . "'";
-        }
-    }
-    error_log("LIST: " . $list);
+    // Initialize SQL Query String
+    $sql_convs = "SELECT * FROM conversations WHERE id IN "
+        . "(SELECT conversation FROM members WHERE user = '" . $token . "')";
 
     // Add another extension to the query string dedicated to ...
     // ... searching based on the passed params
@@ -224,17 +157,11 @@ if (!$_SERVER['PATH_INFO'] and $_SERVER['REQUEST_METHOD'] == 'POST') {
     foreach ($_GET as $key => $val) {
         if ($key == 'token') continue;
         if ($where) $where = $where . " AND $key='$val'";
-        else $where = "$key='$val'";
+        else $where = "$ke›y='$val'";
     }
 
-    // Piece the SQL Request together
-    $sql_convs = "SELECT * FROM conversations";
-    if ($where) {
-        $sql_convs = $sql_convs . ' WHERE ' . $where;
-        if ($list && !$_REQUEST['id']) $sql_convs = $sql_convs . ' AND ' . $list;
-    } else {
-        if ($list && !$_REQUEST['id']) $sql_convs = $sql_convs . ' WHERE ' . $list;
-    }
+    // Adjust Query String if there are more passed queries
+    if ($where) $sql_convs = $sql_convs . ' WHERE ' . $where;
     error_log($sql_convs);
 
     // Make Request and Parse Response
@@ -260,9 +187,70 @@ if (!$_SERVER['PATH_INFO'] and $_SERVER['REQUEST_METHOD'] == 'POST') {
         echo $db->lastErrorMsg();
     }
 
-/*
- * @func  UPDATE CONVERSATION
- */
+/**
+ * @func    JOIN CONVERSATION
+ * @desc    Adds user to a conversation
+ * --
+ * @method  POST
+ * @route   /conversations.php/<convId>/members?token=x
+ * @data    { user: 'X' }
+ * @return  Returns the data back
+**/
+} else if ($_SERVER['PATH_INFO'] and basename($_SERVER['PATH_INFO']) == 'members' and $_SERVER['REQUEST_METHOD'] == 'POST') {
+    error_log('@@@@@@@@@@ Joining Conversation @@@@@@@@@@');
+
+    // Get Variables
+    $convId = basename(dirname($_SERVER['PATH_INFO']));
+    $data = json_decode(file_get_contents('php://input'), true);
+    $userId = $data['user'];
+    $token = $_REQUEST['token'];
+
+    // Add User to Conversation
+    $result = addUserToConversation($token, $userId, $convId);
+    if ($result) {
+        header('Content-Type: application/json');
+        echo json_encode($data);
+    } else {
+        error_log('Conversations Not Joined');
+        http_response_code(500);
+        echo $db->lastErrorMsg();
+    }
+
+/**
+ * @func    LEAVE CONVERSATION
+ * @desc    Adds user to a conversation
+ * --
+ * @method  DELETE
+ * @route   /conversations.php/<convId>/members?token=x
+ * @return  Returns the data back
+**/
+} else if ($_SERVER['PATH_INFO'] and basename($_SERVER['PATH_INFO']) == 'members' and $_SERVER['REQUEST_METHOD'] == 'DELETE') {
+    error_log('@@@@@@@@@@ LEAVING Conversation @@@@@@@@@@');
+
+    // Get Variables
+    $convId = basename(dirname($_SERVER['PATH_INFO']));
+    $token = $_REQUEST['token'];
+
+    // Add User to Conversation
+    $result = removeUserFromConv($token, $convId);
+    if ($result) {
+        header('Content-Type: application/json');
+        echo "";
+    } else {
+        error_log('Conversations Not Joined');
+        http_response_code(500);
+        echo $db->lastErrorMsg();
+    }
+
+
+/**
+ * @func    UPDATE CONVERSATION
+ * @desc    Update conversation
+ * --
+ * @method  POST
+ * @route   /conversations.php/<convId>?token=x
+ * @return  Returns the data back on success; Error message on failure
+**/
 } elseif ($_SERVER['PATH_INFO'] and $_SERVER['REQUEST_METHOD'] == 'POST') {
     error_log('@@@@@@@@@@ Updating Conversation ' . $conv['id'] . " @@@@@@@@@@");
     error_log("Path: " . basename($_SERVER['PATH_INFO']));
@@ -292,30 +280,11 @@ if (!$_SERVER['PATH_INFO'] and $_SERVER['REQUEST_METHOD'] == 'POST') {
     $convId = basename(dirname($_SERVER['PATH_INFO']));
     error_log("- ConvId = " . $convId);
 
-    // Create Query Message
-    /*$sql_members = "SELECT * FROM members WHERE conversation = '" . $convId . "';";
-
-    // Make Request and Parse Response
-    $members = array();
-    $res = $db->query($sql_members);
-    if ($res) {
-        while ($row = $res->fetchArray()) {
-            $member = $row['user'];
-            array_push($members, $member);
-            $members[$member] = $member;
-        }
-        header('Content-Type: application/json');
-        echo json_encode($msgs);
-    } else {
-        error_log('Messages Not Listed');
-        http_response_code(500);
-        echo $db->lastErrorMsg();
-    }
-    */
-
+    // Get Members from Helper Function
     $members = get_members($NULL, $convId);
     error_log("Members: " . print_r($members, true));
     
+    // Send Content Back
     if ($members) {
         header('Content-Type: application/json');
         echo json_encode($members);
@@ -324,6 +293,7 @@ if (!$_SERVER['PATH_INFO'] and $_SERVER['REQUEST_METHOD'] == 'POST') {
         http_response_code(500);
         echo $db->lastErrorMsg();
     }
+
 
 }
 

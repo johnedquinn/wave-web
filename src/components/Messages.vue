@@ -128,19 +128,6 @@ export default {
         }
       );
 
-      /*
-      for (var id of self.conversation["members"]) {
-        console.log(id);
-        this.$db.listUsers(this.$user.token, { id: id }, (err, member) => {
-          if (err) alert(err.message);
-          else {
-            console.log(member);
-            Vue.set(self.members, member[0]["id"], member[0]);
-          }
-        });
-      }
-      console.log(JSON.stringify(this.members));*/
-
       // Get Messages List
       this.$db.listMessages(this.$user.token, this.id, 0, 0, (err, msgs) => {
         if (err) alert(err.message);
@@ -164,8 +151,12 @@ export default {
     },
 
     deleteMessage (msgId) {
+      var self = this;
       this.$db.removeMessage(this.$user.token, this.id, msgId, (err) => {
-        if (err) console.log(err.message);
+        if (err) alert(err.message);
+        else {
+          self.refresh();
+        }
       });
     },
 
