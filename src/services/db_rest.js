@@ -368,7 +368,7 @@ function addMessage (token, convId, content, cb) {
         cb(null, resp.data);
     }).catch((err) => {
         if (err.response) {
-            cb(new Error(err.response.status));
+            cb(new Error(err.message));
         } else if (err.request) {
             cb(new Error('No response received'));
         } else {
