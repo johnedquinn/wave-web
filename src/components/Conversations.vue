@@ -1,4 +1,5 @@
 <template>
+    <div>
     <md-app style="height: 100vh;">
 
 
@@ -15,8 +16,8 @@
         </md-button>
       </md-app-toolbar>
 
-      <md-app-content>
-      <md-list class="md-double-line md-dense">
+      <md-app-content class="indexed">
+      <md-list class="md-double-line md-dense overflow">
         <div :key="conv.id" v-for="conv in conversations">
         <md-divider class="md-inset" v-if="conv != conversations[0]"></md-divider>
         <md-list-item>
@@ -60,14 +61,17 @@
         </div>
       </md-list>
 
-    <!-- FAB -->
-    <md-button class="md-fab bottom-right" @click="createConv">
-      <md-icon>add</md-icon>
-    </md-button>
+
       </md-app-content>
 
 
+
     </md-app>
+        <!-- FAB -->
+    <md-button class="md-fab bottom-right" @click="createConv">
+      <md-icon>add</md-icon>
+    </md-button>
+    </div>
 </template>
 
 <script>
@@ -142,8 +146,13 @@ export default {
 
 <style>
 .bottom-right {
-    position: fixed;
+    position: absolute;
     bottom: 5%;
     right: 5%;
+}
+
+.indexed {
+    overflow: auto;
+    z-index: 1;
 }
 </style>

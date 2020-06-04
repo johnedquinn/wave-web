@@ -6,7 +6,11 @@ Project for the Modern Web Development course at the Polytechnic University of V
 This goal of this project is to create a scalable messaging application similar to that of Whatsapp.
 
 ## Framework
-This project uses Vue.js to control the client and server. For now, the server handles data on-site and does not reach to a cloud-based storage facility, but this is scheduled to be updated.
+### Frontend
+This project uses Node.js and Vue.js to create a responsive frontend.
+
+### Backend
+This project uses PHP to control the backend.
 
 ## Build Setup
 ``` bash
@@ -23,5 +27,5 @@ npm run build
 npm run build --report
 ```
 
-## Screenshots
-- NA
+## Takebacks
+- This project was a great introduction to PHP and Vue.js. I learned a lot about reactive components and how PHP links with SQL tables. The project is fully functional.

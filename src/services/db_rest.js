@@ -37,7 +37,8 @@ function login(email, password, cb) {
     console.log(`login(${email},${password})`);
     if (!email) throw new Error('Email not specified');
     if (!password) throw new Error('Password not specified');
-    axios.post(url_users + '/login', { email: email, password: password }) .then((resp) => {
+    axios.post(url_users + '/login', { email: email, password: password })
+    .then((resp) => {
         console.log('success: ' + JSON.stringify(resp.data));
         cb(null, resp.data.id, resp.data); })
     .catch((err) => {
@@ -75,7 +76,6 @@ function listUsers(token, query, cb) {
     });
 }
 
-/// @TODO: REDO THIS
 /// @func:  updateUser
 /// @param: token - NA
 /// @param: conv - NA
@@ -90,32 +90,29 @@ function updateUser (token, user, cb) {
         return;
     }
 
-    // Check Valid Token
-    var userId = users[token] ? token : null;
-    if (!userId) {
-        if (cb) cb(new Error('Invalid Token'));
-        return;
-    }
-
     // Check User Parameter
     if (!user) throw new Error('User not specified');
     if (!user.email || !user.name || !user.surname || !user.password) throw new Error('Missing user data');
 
-    // Make Sure Unique Email
-    for (var id in users) {
-        if (users[id].email == user.email && users[id].id != token) {
-            if (cb) cb(new Error('Email Already Taken'));
-            return;
+    if (!user.img) user.img = '';
+
+    // Initialize Params
+    var params = {};
+    params.token = token;
+
+    // Make PUT Request
+    axios.put(url_users + '/' + token, user, { params: params })
+    .then((resp) => {
+        console.log('success: ' + JSON.stringify(resp.data));
+        cb(null, resp.data); })
+    .catch((err) => {
+        if (err.response) {
+            cb(new Error(err.response.status)); } else if (err.request) {
+            cb(new Error('No response received'));
+        } else {
+            cb(err);
         }
-    }
-
-    // Set User Information
-    users[token].email = user.email;
-    users[token].name = user.name;
-    users[token].surname = user.surname;
-    users[token].img = user.img;
-
-    if (cb) cb(null, users[token]);
+    });
 }
 
 /// @func:  addConversation
@@ -407,11 +404,11 @@ function removeMessage (token, convId, msgId, cb) {
         return;
     }
 
-    //
+    // Initialize Params Object
     var params = {};
     params.token = token;
 
-    //
+    // Make Delete Request
     axios.delete(url_conversations + '/' + convId + '/messages/' + msgId, { params: params })
     .then((resp) => {
         console.log('success: ' + JSON.stringify(resp.data));

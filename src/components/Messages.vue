@@ -13,17 +13,17 @@
       >
         <img :src="conversation.img" />
       </md-avatar>
-      <md-avatar v-else class="md-medium">
+      <md-avatar v-else class="md-small">
         <md-icon>perm_identity</md-icon>
       </md-avatar>
       <span class="md-title">{{ conversation.name }}</span>
-      <md-button class="md-icon-button" @click="scrollToBottom">
+      <md-button class="md-icon-button md-small" @click="scrollToBottom">
         <md-icon>arrow_downward</md-icon>
       </md-button>
-      <md-button class="md-icon-button" @click="refresh">
+      <md-button class="md-icon-button md-small" @click="refresh">
         <md-icon>refresh</md-icon>
       </md-button>
-      <md-button class="md-icon-button" @click="edit_members">
+      <md-button class="md-icon-button md-small" @click="edit_members">
         <md-icon>group</md-icon>
       </md-button>
     </md-app-toolbar>
@@ -37,7 +37,7 @@
           ></md-divider>
           <md-list-item>
             <!-- ICON -->
-            <!--<md-avatar
+            <md-avatar
               v-if="
                 members[message.author] &&
                   members[message.author].img &&
@@ -48,16 +48,16 @@
               <img :src="members[message.author].img" />
             </md-avatar>
             <md-avatar v-else class="md-large">
-              <md-icon>group</md-icon>
-            </md-avatar>-->
+              <md-icon>face</md-icon>
+            </md-avatar>
 
             <div class="md-list-item-text">
               <span>{{ message.content }}</span>
-              <!--<p v-if="members[message.author]">
+              <p v-if="members[message.author]">
                 {{ members[message.author].name }}
-                {{ members[message.author].surname }} {{ message.ts }}
+                {{ members[message.author].surname }} {{ new Date(message.ts).getMonth() + 1 + "/" + new Date(message.ts).getDate() + " " + new Date(message.ts).getHours() + ":" + new Date(message.ts).getMinutes() }}
               </p>
-              <p v-else>Unknown Member {{ message.ts }}</p>-->
+              <p v-else>Unknown Member {{ message.ts.toString() }}</p>
             </div>
 
             <md-menu md-size="medium" md-direction="bottom-end">
@@ -127,6 +127,17 @@ export default {
           }
         }
       );
+
+      // Get Members
+      this.$db.listMembers(this.$user.token, this.id, (err, mems) => {
+        if (err) alert(err.message);
+        else {
+          for (var mid in mems) {
+            console.log("MID: " + mid);
+            Vue.set(self.members, mid, mems[mid]);
+          }
+        }
+      })
 
       // Get Messages List
       this.$db.listMessages(this.$user.token, this.id, 0, 0, (err, msgs) => {
